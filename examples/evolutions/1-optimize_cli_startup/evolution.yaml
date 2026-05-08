@@ -1,0 +1,107 @@
+evolution_id: 1
+slug: optimize_cli_startup
+created_at: "2026-05-08T14:30:00Z"
+updated_at: "2026-05-08T19:42:00Z"
+
+objective: Minimize wall-clock startup of `mycli --version` on a cold cache while keeping every existing test green.
+
+scope:
+  kind: worktree
+  include:
+    - src/
+    - tsdown.config.ts
+    - package.json
+  exclude:
+    - tests/
+    - docs/
+
+budget:
+  max_variants: 30
+  parallel: 6
+  plateau_generations: 2
+
+gates:
+  - id: G1
+    description: Build succeeds.
+    cmd: pnpm build
+  - id: G2
+    description: Every existing test passes.
+    cmd: pnpm test
+
+rubric:
+  - id: R1
+    description: Cold-cache wall-clock for `node dist/cli.js --version`, milliseconds (mean of 5 hyperfine runs).
+    direction: minimize
+    weight: 1.0
+    cmd: hyperfine --warmup 0 --runs 5 --export-json /tmp/hf.json 'node dist/cli.js --version' && jq '.results[0].mean * 1000' /tmp/hf.json
+    extract: "([0-9]+\\.[0-9]+)"
+
+variants:
+  - id: v1
+    generation: 1
+    parents: []
+    hypothesis: Lazy-load every command module behind `--help` / `--version` short-circuits.
+    approach: |
+      Replace eager imports in src/cli.ts with `await import()` calls inside each
+      command branch. Top-level only imports the arg parser. `--version` reads
+      package.json synchronously and exits before any subcommand module loads.
+    workspace: .agents/evolutions/1-optimize_cli_startup/variants/v1/workspace
+    status: evaluated
+    gates:
+      - { id: G1, passes: true, output: "tsdown ✓" }
+      - { id: G2, passes: true, output: "47 passed" }
+    rubric:
+      - { id: R1, value: 184.2 }
+
+  - id: v2
+    generation: 1
+    parents: []
+    hypothesis: Inline the version string at build time so `--version` skips package.json IO.
+    approach: |
+      tsdown plugin reads package.json.version at build time and replaces a
+      `__VERSION__` constant in src/cli.ts. The runtime branch becomes
+      `console.log(__VERSION__)`.
+    workspace: .agents/evolutions/1-optimize_cli_startup/variants/v2/workspace
+    status: evaluated
+    gates:
+      - { id: G1, passes: true, output: "tsdown ✓" }
+      - { id: G2, passes: true, output: "47 passed" }
+    rubric:
+      - { id: R1, value: 142.0 }
+
+  - id: v4
+    generation: 1
+    parents: []
+    hypothesis: Strip core-js polyfills from the cli entry chunk.
+    approach: |
+      Drop the babel polyfill plugin for the cli entry; keep it for legacy build.
+    workspace: .agents/evolutions/1-optimize_cli_startup/variants/v4/workspace
+    status: evaluated
+    gates:
+      - { id: G1, passes: true, output: "tsdown ✓" }
+      - { id: G2, passes: false, output: "2 failed: tests/unicode.test.ts" }
+
+  - id: v7
+    generation: 2
+    parents: ["v2"]
+    hypothesis: v2 + bundle-time tree-shake the help-text module out of the version path.
+    approach: |
+      Build on v2's inlined version. Move help-text generation into a separate
+      entry chunk loaded only when --help is invoked. Verify with
+      `pnpm build --analyze` that dist/cli.js does not import the help chunk.
+    workspace: .agents/evolutions/1-optimize_cli_startup/variants/v7/workspace
+    status: evaluated
+    gates:
+      - { id: G1, passes: true, output: "tsdown ✓" }
+      - { id: G2, passes: true, output: "47 passed" }
+    rubric:
+      - { id: R1, value: 98.6 }
+
+winner:
+  variant_id: v7
+  rationale: |
+    v7 (gen 2) wins R1 with 98.6 ms cold-cache startup vs v2 (142.0 ms) and v1
+    (184.2 ms). Both gates pass. Inheriting v2's build-time version inlining
+    and tree-shaking the help chunk dropped the version-path bundle from 84 KB
+    to 12 KB. Plateau hit at gen 4 — top score unchanged for two consecutive
+    generations, loop stopped at 24/30 variants.

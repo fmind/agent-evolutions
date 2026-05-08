@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
+  "name": "agent-evolutions",
+  "description": "Genetic exploration of solution spaces for AI coding agents — gather a verifiable objective, evolve variants, apply the winner.",
+  "author": {
+    "name": "Médéric Hurier",
+    "email": "github@fmind.dev",
+    "url": "https://fmind.dev"
+  },
+  "homepage": "https://github.com/fmind/agent-evolutions",
+  "repository": "https://github.com/fmind/agent-evolutions",
+  "license": "MIT",
+  "keywords": [
+    "agentic-coding",
+    "agent-skills",
+    "agent-evolutions",
+    "genetic-loop",
+    "variant-optimization",
+    "verifiable-scoring",
+    "gemini-cli",
+    "claude-code",
+    "github-copilot"
+  ]
+}

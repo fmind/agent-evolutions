@@ -1,0 +1,5 @@
+{
+  "name": "agent-evolutions",
+  "version": "1.0.0",
+  "description": "Genetic exploration of solution spaces for AI coding agents — gather a verifiable objective, evolve variants, apply the winner."
+}

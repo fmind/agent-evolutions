@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/fmind/agent-evolutions/result.schema.json",
+  "title": "Variant result file",
+  "description": "Per-variant evaluation result, written by the variant sub-agent to <workspace>/../result.json (i.e. .agents/evolutions/<id>-<slug>/variants/<vid>/result.json). The parent agent reads this file after dispatch — the file is the contract, not the chat reply. Missing file = harness error.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["status", "gates"],
+  "properties": {
+    "status": {
+      "enum": ["evaluated", "errored", "killed"],
+      "description": "`evaluated` means gates ran (one or more may have failed — read `gates[].passes`). `errored` is a sub-agent failure. `killed` is a per-variant timeout."
+    },
+    "gates": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/gate_result" },
+      "description": "One entry per declared gate, in declared order. Empty only when status != evaluated."
+    },
+    "rubric": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/rubric_score" },
+      "description": "One entry per declared rubric axis. Omit entirely when any gate failed — failed variants are not measured."
+    },
+    "notes": {
+      "type": "string",
+      "description": "Optional one-paragraph free text — surprises, caveats, anything the next generation should know."
+    }
+  },
+  "$defs": {
+    "gate_result": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "passes"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^G[1-9][0-9]*$" },
+        "passes": { "type": "boolean" },
+        "output": {
+          "type": "string",
+          "description": "Trimmed verifier output, one line — for audit."
+        }
+      }
+    },
+    "rubric_score": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "value"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^R[1-9][0-9]*$" },
+        "value": { "type": "number" }
+      }
+    }
+  }
+}

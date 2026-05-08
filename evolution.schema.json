@@ -1,0 +1,214 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/fmind/agent-evolutions/evolution.schema.json",
+  "title": "Evolution state file",
+  "description": "Per-evolution machine state, written by the new-agent-evolution / run-agent-evolution / apply-agent-evolution skills. One file per evolution directory: .agents/evolutions/<id>-<slug>/evolution.yaml. State is derived from field presence: variants empty = ready; has variants but no winner = running; has winner but no applied = evaluated; has applied = done.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "evolution_id",
+    "slug",
+    "created_at",
+    "updated_at",
+    "objective",
+    "budget",
+    "gates",
+    "rubric",
+    "variants"
+  ],
+  "properties": {
+    "evolution_id": { "type": "integer", "minimum": 1 },
+    "slug": {
+      "type": "string",
+      "pattern": "^[a-z0-9_]+$",
+      "maxLength": 40
+    },
+    "created_at": { "type": "string", "format": "date-time" },
+    "updated_at": { "type": "string", "format": "date-time" },
+    "objective": {
+      "type": "string",
+      "minLength": 1,
+      "description": "One sentence — the single thing the rubric ranks against."
+    },
+    "scope": { "$ref": "#/$defs/scope" },
+    "budget": { "$ref": "#/$defs/budget" },
+    "gates": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/gate" },
+      "description": "Hard pass/fail. A variant failing any gate is excluded from ranking."
+    },
+    "rubric": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/rubric_axis" },
+      "minItems": 1,
+      "description": "Numeric ranking dimensions. Composite score is the rank-normalized weighted mean across axes, recomputed on read by the run skill — never persisted in the yaml."
+    },
+    "variants": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/variant" }
+    },
+    "winner": { "$ref": "#/$defs/winner" },
+    "applied": { "$ref": "#/$defs/applied" }
+  },
+  "$defs": {
+    "scope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind"],
+      "properties": {
+        "kind": {
+          "enum": ["worktree", "files"],
+          "description": "How each variant's workspace is materialized. `worktree` adds a git worktree at HEAD; `files` copies the listed include paths into a fresh directory."
+        },
+        "include": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "exclude": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "budget": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["max_variants", "parallel"],
+      "properties": {
+        "max_variants": { "type": "integer", "minimum": 1 },
+        "parallel": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Concurrent variants per generation. The loop runs `parallel` variants, waits, learns, generates the next batch."
+        },
+        "max_minutes": { "type": "integer", "minimum": 1 },
+        "plateau_generations": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Stop early when the top score has not improved for this many consecutive generations."
+        }
+      }
+    },
+    "gate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "description", "cmd"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^G[1-9][0-9]*$" },
+        "description": { "type": "string", "minLength": 1 },
+        "cmd": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Shell command run from the variant workspace root. Exit 0 = pass."
+        }
+      }
+    },
+    "rubric_axis": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "description", "direction", "cmd"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^R[1-9][0-9]*$" },
+        "description": { "type": "string", "minLength": 1 },
+        "direction": { "enum": ["minimize", "maximize"] },
+        "weight": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "default": 1.0
+        },
+        "cmd": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Shell command. Must print one numeric value, or use `extract`."
+        },
+        "extract": {
+          "type": "string",
+          "description": "Optional. Either a regex with one capture group, or `wall_clock_seconds` (use cmd runtime, ignore stdout)."
+        }
+      }
+    },
+    "variant": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "generation", "hypothesis", "status"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^v[1-9][0-9]*$" },
+        "generation": { "type": "integer", "minimum": 1 },
+        "parents": {
+          "type": "array",
+          "items": { "type": "string", "pattern": "^v[1-9][0-9]*$" },
+          "description": "Empty for generation 1. For later generations, the variant ids this one mutated or crossed over from."
+        },
+        "hypothesis": { "type": "string", "minLength": 1 },
+        "approach": {
+          "type": "string",
+          "description": "Multi-line — concrete enough that a sub-agent can implement it without re-deriving the design."
+        },
+        "workspace": {
+          "type": "string",
+          "description": "Repo-relative path to the materialized workspace. Set when execution starts."
+        },
+        "status": {
+          "enum": ["pending", "running", "evaluated", "errored", "killed"],
+          "description": "`evaluated` means gates ran (one or more may have failed — read `gates[].passes`). `errored` is a harness failure. `killed` is a per-variant timeout."
+        },
+        "gates": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/gate_result" }
+        },
+        "rubric": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/rubric_score" },
+          "description": "Empty when any gate failed — failed variants are not measured."
+        }
+      }
+    },
+    "gate_result": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "passes"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^G[1-9][0-9]*$" },
+        "passes": { "type": "boolean" },
+        "output": {
+          "type": "string",
+          "description": "Trimmed verifier output, one line — for audit."
+        }
+      }
+    },
+    "rubric_score": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "value"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^R[1-9][0-9]*$" },
+        "value": { "type": "number" }
+      }
+    },
+    "winner": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["variant_id", "rationale"],
+      "properties": {
+        "variant_id": { "type": "string", "pattern": "^v[1-9][0-9]*$" },
+        "rationale": {
+          "type": "string",
+          "minLength": 1,
+          "description": "One paragraph — score, axis-by-axis comparison vs runner-up, caveats."
+        }
+      }
+    },
+    "applied": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["at", "files_changed"],
+      "properties": {
+        "at": { "type": "string", "format": "date-time" },
+        "files_changed": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 }
+        }
+      }
+    }
+  }
+}
