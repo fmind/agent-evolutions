@@ -99,6 +99,18 @@ For local development (live-link, edits reload on next session):
 gemini extensions link /path/to/agent-evolutions
 ```
 
+### Antigravity CLI
+
+```bash
+agy plugin install https://github.com/fmind/agent-evolutions
+```
+
+For local development (live-link, edits reload on next session):
+
+```bash
+agy plugin install /path/to/agent-evolutions
+```
+
 ### GitHub Copilot
 
 ```bash

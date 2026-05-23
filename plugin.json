@@ -1,5 +1,25 @@
 {
   "name": "agent-evolutions",
   "version": "1.0.0",
-  "description": "Genetic exploration of solution spaces for AI coding agents — gather a verifiable objective, evolve variants, apply the winner."
+  "description": "Genetic exploration of solution spaces for AI coding agents — gather a verifiable objective, evolve variants, apply the winner.",
+  "author": {
+    "name": "Médéric Hurier",
+    "email": "github@fmind.dev",
+    "url": "https://fmind.dev"
+  },
+  "homepage": "https://github.com/fmind/agent-evolutions",
+  "repository": "https://github.com/fmind/agent-evolutions",
+  "license": "MIT",
+  "keywords": [
+    "agentic-coding",
+    "agent-skills",
+    "genetic-algorithm",
+    "evolutions",
+    "gemini-cli",
+    "claude-code",
+    "github-copilot",
+    "antigravity",
+    "antigravity-cli",
+    "agy"
+  ]
 }
