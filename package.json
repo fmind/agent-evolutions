@@ -1,6 +1,6 @@
 {
   "name": "agent-evolutions",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "private": true,
   "description": "Genetic exploration of solution spaces for AI coding agents — gather a verifiable objective, evolve variants, apply the winner.",
   "author": {
@@ -20,7 +20,8 @@
     "verifiable-scoring",
     "gemini-cli",
     "claude-code",
-    "github-copilot"
+    "github-copilot",
+    "opencode"
   ],
   "scripts": {
     "lint": "prettier --check \"**/*.{md,json,yml,yaml}\" && markdownlint-cli2",

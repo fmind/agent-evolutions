@@ -3,7 +3,7 @@
 ## Overview
 
 - agent-evolutions ships three slash-command skills — `/new-agent-evolution`, `/run-agent-evolution`, `/apply-agent-evolution` — that together drive a coding agent through a genetic exploration loop: gather a verifiable objective, generate variants in parallel batches, learn from each generation, pick the winner by exit codes and numeric rubric, port the winner into the repo. One skill per phase (Capture / Run / Apply); each refuses to operate outside its phase based on `evolution.yaml` field presence.
-- Skills are file-based and harness-agnostic: the same `skills/` tree works in Claude Code, Gemini CLI, and GitHub Copilot.
+- Skills are file-based and harness-agnostic: the same `skills/` tree works in Claude Code, Gemini CLI, GitHub Copilot, and OpenCode.
 - End-user state lives in `.agents/evolutions/<id>-<slug>/`: `evolution.yaml` (machine state, validated against `evolution.schema.json`), `EVOLUTION.md` (single human/agent surface — TL;DR, Brief, Variants, Results; the §Brief section is loaded verbatim by every variant sub-agent), `variants/v<n>/workspace/` (per-variant isolated checkout or file copy), `variants/v<n>/result.json` (sub-agent output, validated against `result.schema.json`).
 - State is **derived from field presence**, not an explicit step machine: empty `variants[]` = ready (run `/new-agent-evolution` first); has variants but no `winner` = running; has `winner` but no `applied` = evaluated; has `applied` = done. Each skill checks reality on entry and refuses if invoked in the wrong phase — no `step` enum, no `pause` flag.
 
@@ -41,7 +41,7 @@ Cancellation is manual: delete the evolution directory, or stop running and let 
 - `evolution.schema.json` — JSONSchema for end-user `.agents/evolutions/*/evolution.yaml`.
 - `result.schema.json` — JSONSchema for the per-variant `variants/v<n>/result.json` written by sub-agents.
 - `examples/evolutions/` — runnable walkthroughs.
-- `.claude-plugin/`, `gemini-extension.json`, `plugin.json` — harness manifests for Claude Code, Gemini CLI, GitHub Copilot.
+- `.claude-plugin/`, `gemini-extension.json`, `plugin.json` — harness manifests for Claude Code, Gemini CLI, GitHub Copilot, and OpenCode.
 - `CLAUDE.md`, `GEMINI.md` — single-line `@AGENTS.md` includes so Claude Code and Gemini CLI pick up the canonical context.
 - `package.json`, `.markdownlint-cli2.jsonc`, `.prettierrc.json`, `.prettierignore` — `npm run lint` config (Prettier + markdownlint-cli2 only — no runtime deps).
 - `.pre-commit-config.yaml`, `.github/workflows/ci.yml` — pre-commit hooks (large files, merge conflicts, private keys, lint) run locally and in CI on push and PR.

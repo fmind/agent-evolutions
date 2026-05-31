@@ -1,12 +1,12 @@
 # Agent Evolutions
 
-[![CI](https://github.com/fmind/agent-evolutions/actions/workflows/ci.yml/badge.svg)](https://github.com/fmind/agent-evolutions/actions/workflows/ci.yml) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE) [![Claude Code](https://img.shields.io/badge/Claude%20Code-supported-D97706)](https://github.com/anthropics/claude-code) [![Gemini CLI](https://img.shields.io/badge/Gemini%20CLI-supported-4285F4)](https://github.com/google-gemini/gemini-cli) [![GitHub Copilot](https://img.shields.io/badge/GitHub%20Copilot-supported-181717)](https://github.com/features/copilot)
+[![CI](https://github.com/fmind/agent-evolutions/actions/workflows/ci.yml/badge.svg)](https://github.com/fmind/agent-evolutions/actions/workflows/ci.yml) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE) [![Claude Code](https://img.shields.io/badge/Claude%20Code-supported-D97706)](https://github.com/anthropics/claude-code) [![Gemini CLI](https://img.shields.io/badge/Gemini%20CLI-supported-4285F4)](https://github.com/google-gemini/gemini-cli) [![GitHub Copilot](https://img.shields.io/badge/GitHub%20Copilot-supported-181717)](https://github.com/features/copilot) [![OpenCode](https://img.shields.io/badge/OpenCode-supported-059669)](https://opencode.ai)
 
 ![Agent Evolutions — genetic exploration of solution spaces with verifiable scoring](./image.jpeg)
 
 > **Genetic exploration of solution spaces, with verifiable scoring.**
 
-**Agent Evolutions** is a file-based Agent Skill suite that drives a coding agent through a genetic loop: gather a single verifiable objective, generate variants in parallel batches, learn from each generation, rank survivors by exit codes (gates) and numeric measures (rubric), then port the winner into the repo. Three slash commands — `/new-agent-evolution`, `/run-agent-evolution`, `/apply-agent-evolution` — cover the three phases, each enforcing its preconditions on `evolution.yaml` field presence. Install once and the same `skills/` tree runs in Claude Code, Gemini CLI, and GitHub Copilot.
+**Agent Evolutions** is a file-based Agent Skill suite that drives a coding agent through a genetic loop: gather a single verifiable objective, generate variants in parallel batches, learn from each generation, rank survivors by exit codes (gates) and numeric measures (rubric), then port the winner into the repo. Three slash commands — `/new-agent-evolution`, `/run-agent-evolution`, `/apply-agent-evolution` — cover the three phases, each enforcing its preconditions on `evolution.yaml` field presence. Install once and the same `skills/` tree runs in Claude Code, Gemini CLI, GitHub Copilot, and OpenCode.
 
 **The payoff:** when you have an optimization that admits multiple plausible designs and at least one mechanical measure (faster, smaller, more accurate, more autonomous), the agent runs a budgeted genetic search instead of you guessing — and reports a winner you can defend with evidence.
 
@@ -110,6 +110,10 @@ For local development (live-link, edits reload on next session):
 ```bash
 agy plugin install /path/to/agent-evolutions
 ```
+
+### OpenCode
+
+To use these skills in OpenCode, place or clone the skill directories under `.agents/skills/` (for project scope) or `~/.agents/skills/` (for global scope). OpenCode automatically discovers and loads them.
 
 ### GitHub Copilot
 

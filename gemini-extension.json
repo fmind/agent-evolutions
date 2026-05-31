@@ -1,6 +1,6 @@
 {
   "name": "agent-evolutions",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Genetic exploration of solution spaces for AI coding agents — gather a verifiable objective, evolve variants, apply the winner.",
   "author": {
     "name": "Médéric Hurier",
@@ -19,6 +19,7 @@
     "verifiable-scoring",
     "gemini-cli",
     "claude-code",
-    "github-copilot"
+    "github-copilot",
+    "opencode"
   ]
 }
