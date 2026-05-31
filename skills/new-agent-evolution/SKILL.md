@@ -1,6 +1,9 @@
 ---
 name: new-agent-evolution
 description: Capture phase of an agent evolution — discuss the objective, gates, rubric, scope, and budget; write `.agents/evolutions/<id>-<slug>/{evolution.yaml, EVOLUTION.md}` only on explicit user agreement. Pairs with `/run-agent-evolution` (next) and `/apply-agent-evolution` (later).
+metadata:
+  author: fmind
+  url: https://github.com/fmind/agent-evolutions/tree/main/skills/new-agent-evolution
 ---
 
 # new-agent-evolution

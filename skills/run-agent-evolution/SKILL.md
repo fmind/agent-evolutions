@@ -1,6 +1,9 @@
 ---
 name: run-agent-evolution
 description: Run phase of an agent evolution — plan a batch of up to `budget.parallel` variants, dispatch sub-agents in parallel to materialize and evaluate them, learn from results, repeat until budget / wall-clock / plateau. Writes `winner` on a clean stop. Requires an evolution captured via `/new-agent-evolution`; `/apply-agent-evolution` lands the winner afterward.
+metadata:
+  author: fmind
+  url: https://github.com/fmind/agent-evolutions/tree/main/skills/run-agent-evolution
 ---
 
 # run-agent-evolution

@@ -1,6 +1,9 @@
 ---
 name: apply-agent-evolution
 description: Apply phase of an agent evolution — diff the winner workspace against the live repo, get explicit user confirmation, copy files in, optionally re-run gates against the live tree. Writes `applied`. Requires `winner` set by `/run-agent-evolution`.
+metadata:
+  author: fmind
+  url: https://github.com/fmind/agent-evolutions/tree/main/skills/apply-agent-evolution
 ---
 
 # apply-agent-evolution
