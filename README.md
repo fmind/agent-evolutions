@@ -177,6 +177,8 @@ Issues and PRs welcome. Three house rules to keep the skills lean:
 - **Voice is imperative.** The skill body addresses the agent ("Read X, then write Y."), not a human reader — that prose belongs in this README.
 - **Run `npm install` once after cloning** — pulls in Prettier and markdownlint-cli2 (no runtime deps). Then `npm run lint` validates Prettier + markdownlint locally with the same hooks `pre-commit` and CI run.
 
+The npm overrides keep the existing linter on patched YAML, Markdown, and TOML parsers and update KaTeX. Keep these overrides until upstream dependencies include the fixes. Use Node.js 22.12 or newer. Run `npm ci`, `npm run lint`, and `uvx pre-commit run --all-files` to check the locked dependencies. `npm audit` still reports an upstream [braces advisory without a published fix](https://github.com/advisories/GHSA-vfj7-8cjw-p6xm); passing checks does not mean the development dependencies are vulnerability-free.
+
 ## License
 
 MIT — see [LICENSE](./LICENSE).
